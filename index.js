@@ -22,6 +22,7 @@ async function run(){
         const appointmentCollection = databse.collection('appointments')
         const contectCollection = databse.collection('Contect')
         const usersCollection = databse.collection('users')
+        const adminCollection = databse.collection('Admin')
         app.get('/service',async (req, res)=>{
             const curser = serviceCollection.find({});
             const service = await curser.toArray();
@@ -33,6 +34,18 @@ async function run(){
             const query = {_id : ObjectId(id)};
             const service = await serviceCollection.findOne(query)
             res.send(service)
+        })
+        app.put('/appointment', async (req, res)=>{
+            const body = req.body;
+            console.log(body)
+            const fillter = {_id : ObjectId(body.id)};
+            const updateDoc = {
+                $set:{
+                    status : body.status
+                },
+            };
+            const result = await appointmentCollection.updateOne(fillter, updateDoc);
+            res.json(result)
         })
         app.post('/appointment', async (req, res)=>{
             const body = (req.body);
@@ -62,6 +75,18 @@ async function run(){
             const contect = await curser.toArray();
             res.send(contect)
         })
+        app.get('/contect/:id', async (req, res)=>{
+            const id = req.params.id;
+            const query = {_id : ObjectId(id)};
+            const result = await contectCollection.findOne(query);
+            res.send(result)
+        })
+        app.delete('/contect/:id', async (req, res)=>{
+            const id = req.params.id;
+            const query = {_id : ObjectId(id)};
+            const result = await contectCollection.deleteOne(query);
+            res.send(result)
+        })
         app.delete('/appointment/:id', async (req, res)=>{
             const id = req.params.id;
             const query = {_id : ObjectId(id)};
@@ -88,6 +113,28 @@ async function run(){
             const users = await cuser.toArray();
             const query = users.filter(user => user.email === email);
             res.send(query)
+        })
+        app.post('/admin', async (req, res)=>{
+            const body = req.body;
+            const admin = await adminCollection.insertOne(body);
+            res.json(admin)
+        })
+        app.get('/admin', async (req, res)=>{
+            const curser = adminCollection.find({});
+            const admin = await curser.toArray();
+            res.send(admin)
+        })
+        app.delete('/admin/:email', async (req, res)=>{
+            const email = req.params.email;
+            const query = {email : email};
+            const result = await adminCollection.deleteOne(query);
+            res.json(result)
+        })
+        app.get('/admin/:email', async (req, res)=>{
+            const email = req.params.email;
+            const query = {email : email};
+            const admin = await adminCollection.findOne(query);
+            res.json(admin)
         })
     }
     finally{
